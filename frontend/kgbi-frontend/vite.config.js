@@ -8,10 +8,15 @@ export default defineConfig({
     react(), 
     tailwindcss()
   ],
+  // ⚡ Faster minification using esbuild (replaces Terser)
+  esbuild: {
+    drop: ['console', 'debugger'],
+  },
   build: {
+    // No need for 'minify: terser' anymore as esbuild is the default
     rollupOptions: {
       output: {
-        // 🏛️ UPDATED: Function-based manual chunking for Vite 8 / Rolldown
+        // 🏛️ Vite 8 / Rolldown compatible chunking
         manualChunks(id) {
           if (id.includes('node_modules')) {
             if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
@@ -22,14 +27,6 @@ export default defineConfig({
             }
           }
         },
-      },
-    },
-    // Removes console logs in production for a cleaner app
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
       },
     },
   },

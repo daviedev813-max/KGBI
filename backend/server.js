@@ -1,9 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import path from "path"; // Added for directory paths
-import fs from "fs";     // Added to handle folder creation
-import { fileURLToPath } from "url"; // Required for ES Modules __dirname
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
 
 // Routes
@@ -13,54 +13,71 @@ import adminRoutes from "./routes/adminRoutes.js";
 
 dotenv.config();
 
-// 📂 SETUP UPLOADS DIRECTORY (Ensures Multer has a place to save files)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const uploadDir = path.join(__dirname, "uploads");
+const app = express(); // 1. INITIALIZE APP FIRST
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-  console.log("📁 Created 'uploads' directory");
-}
-
-// Connect to database
+// 2. DATABASE CONNECTION
 connectDB();
 
-const app = express();
+// 3. CORS CONFIGURATION
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "https://kenyagracebibleinstitute.vercel.app",
+  "http://localhost:5173", 
+  "http://localhost:3000"
+].filter(Boolean);
 
-// Middleware
-app.use(cors());
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    const isAllowed = allowedOrigins.some((allowed) => {
+      if (allowed instanceof RegExp) return allowed.test(origin);
+      return allowed === origin || origin.endsWith(".vercel.app");
+    });
+    isAllowed ? callback(null, true) : callback(new Error("Not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+// 4. MIDDLEWARE
 app.use(express.json());
 
-// 📎 SERVE STATIC FILES: This makes http://localhost:5000/uploads/filename.pdf accessible
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Note: Local uploads won't work on Vercel. Consider Cloudinary/AWS S3 for production.
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+app.use("/uploads", express.static(uploadDir));
 
-// Base route
+// 5. API ROUTES
 app.get("/", (req, res) => {
-  res.send("KGBI API is running...");
+  res.json({
+    status: "Operational",
+    system: "kenyagracebibleinstitute-backend",
+    version: "2026.1"
+  });
 });
 
-// API Routes
 app.use("/api/applications", applicationRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/admin", adminRoutes);
 
-// 404 Handler
+// 6. ERROR HANDLERS
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-// Global Error Handler
 app.use((err, req, res, next) => {
-  console.error(err.stack); // Log the full error for debugging
+  console.error(err.stack);
   res.status(err.status || 500).json({
     message: err.message || "Server Error",
   });
 });
 
-// Port
-const PORT = process.env.PORT || 5000;
-
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
