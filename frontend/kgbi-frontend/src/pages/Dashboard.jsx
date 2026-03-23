@@ -19,12 +19,12 @@ function Dashboard() {
     try {
       const [appRes, msgRes] = await Promise.all([
         API.get("/applications"),
-        API.get("/all/messages")
+        API.get("/messages/all")
       ]);
       setApplications(appRes.data);
       setMessages(msgRes.data);
     } catch (error) {
-      console.error(error);
+      console.error(error.response?.data?.message || "An error occurred in getting mesesages/applications");
     } finally {
       setLoading(false);
     }
