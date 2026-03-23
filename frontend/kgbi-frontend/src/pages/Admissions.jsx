@@ -55,7 +55,7 @@ function Admissions() {
     try {
       // NOTE: Ensure your axios instance doesn't force 'application/json'
       // for this specific call so it can handle multipart/form-data
-      await API.post("/applications", formData, {
+      await API.post("create/applications", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setIsSuccess(true);

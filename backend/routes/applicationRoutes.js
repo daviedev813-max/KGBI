@@ -14,7 +14,7 @@ const upload = multer({ storage });
 
 // Apply the 'upload.single' middleware to the POST route
 // The key 'document' must match the key used in your frontend FormData
-router.post("/", upload.single('document'), createApplication);
+router.post("/create", upload.single('document'), createApplication);
 router.get("/",protect, getApplications);
 
 export default router;

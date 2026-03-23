@@ -8,9 +8,9 @@ import protect from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 // Public
-router.post("/", createMessage);
+router.post("/create", createMessage);
 
 // Admin only
-router.get("/", protect, getMessages);
+router.get("/all", protect, getMessages);
 
 export default router;

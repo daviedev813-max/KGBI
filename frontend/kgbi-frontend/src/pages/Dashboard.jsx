@@ -19,7 +19,7 @@ function Dashboard() {
     try {
       const [appRes, msgRes] = await Promise.all([
         API.get("/applications"),
-        API.get("/messages")
+        API.get("/all/messages")
       ]);
       setApplications(appRes.data);
       setMessages(msgRes.data);

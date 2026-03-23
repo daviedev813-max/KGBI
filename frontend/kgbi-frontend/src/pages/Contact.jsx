@@ -25,7 +25,10 @@ function Contact() {
     e.preventDefault();
     setLoading(true);
     try {
-      await API.post("/messages", form);
+      await API.post("/create/messages", form ,
+        {headers: { "Content-Type": "multipart/form-data" },
+       }
+      );
       setSent(true);
       setForm({ name: "", email: "", phone: "", message: "" });
     } catch (err) {
