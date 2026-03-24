@@ -1,7 +1,12 @@
 import axios from "axios";
+console.log("Current API URL:", import.meta.env.VITE_API_URL);
+// In your api/axios.js
+const baseURL = import.meta.env.VITE_API_URL || "https://kgbi.onrender.com";
+
+console.log("Axios using BaseURL:", baseURL);
 
 const API = axios.create({
-  baseURL: "https://kgbi.onrender.com/api",
+  baseURL: baseURL,
 });
 
 // 1. Request Interceptor: Attach token automatically

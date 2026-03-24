@@ -1,9 +1,13 @@
+// 🚨 1. THIS MUST BE THE FIRST LINE. 
+// It forces environment variables to load BEFORE any other imports.
+import 'dotenv/config'; 
+
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
 import fs from "fs";
-import compression from "compression"; // New: Compresses responses for speed
+import compression from "compression";
+import helmet from "helmet";
 import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
 
@@ -12,19 +16,17 @@ import applicationRoutes from "./routes/applicationRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 1. INITIALIZE APP
+// 2. INITIALIZE APP & DATABASE
 const app = express();
-
-// 2. DATABASE CONNECTION
 connectDB();
 
 // 3. MIDDLEWARE & SECURITY
-app.use(compression()); // Makes your API responses smaller/faster
+// Setting Cross-Origin-Resource-Policy to false allows Cloudinary images to load
+app.use(helmet({ crossOriginResourcePolicy: false })); 
+app.use(compression()); 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -39,19 +41,12 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl)
       if (!origin) return callback(null, true);
-      
       const isAllowed = allowedOrigins.some((allowed) => {
         if (allowed instanceof RegExp) return allowed.test(origin);
         return allowed === origin || origin.endsWith(".vercel.app");
       });
-
-      if (isAllowed) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
+      isAllowed ? callback(null, true) : callback(new Error("Not allowed by CORS"));
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
@@ -59,8 +54,7 @@ app.use(
   }),
 );
 
-// 5. STATIC FILES & UPLOADS
-// Warning: Files in /uploads are temporary on Render/Vercel.
+// 5. STATIC FILES (For local fallback)
 const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -71,7 +65,7 @@ app.use("/uploads", express.static(uploadDir));
 app.get("/", (req, res) => {
   res.json({
     status: "Operational",
-    system: "kenyagracebibleinstitute-backend",
+    system: "kgbi-backend",
     version: "2026.1",
     timestamp: new Date().toISOString()
   });
@@ -82,18 +76,19 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/admin", adminRoutes);
 
 // 7. ERROR HANDLERS
-// 404 Handler
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-// Global Error Handler
+// Improved Global Error Handler
 app.use((err, req, res, next) => {
-  console.error(`[Error]: ${err.stack}`);
+  console.error("--- BACKEND CRASH LOG ---");
+  console.error(err); 
+  console.error("-------------------------");
+
   const statusCode = err.status || 500;
   res.status(statusCode).json({
     message: err.message || "Internal Server Error",
-    // Only show stack trace in development mode
     stack: process.env.NODE_ENV === "production" ? null : err.stack,
   });
 });
@@ -104,4 +99,4 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
 
-export default app; // Useful for testing or serverless environments
+export default app;

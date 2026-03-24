@@ -9,10 +9,19 @@ const applicationSchema = new mongoose.Schema(
       type: String,
       // Matches the values in your frontend select menu
       enum: ["Part-time", "Full-time", "Bi-vocational"],
+      required: true, // Recommended to ensure data integrity
     },
     message: { type: String },
-    // 📎 New field for the uploaded ID or Certificate
-    documentPath: { type: String }, 
+    
+    // 📎 Cloudinary Fields
+    documentPath: { 
+      type: String, 
+      description: "The secure URL of the file in Cloudinary" 
+    }, 
+    cloudinaryId: { 
+      type: String, 
+      description: "Used to delete or manage the file in Cloudinary" 
+    },
   },
   { timestamps: true }
 );
