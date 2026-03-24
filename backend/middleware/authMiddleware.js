@@ -5,18 +5,24 @@ const protect = async (req, res, next) => {
   let token;
 
   // 1. Check for Bearer token in headers
-  if (req.headers.authorization?.startsWith("Bearer")) {
+  if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
     try {
-      // Get token from string "Bearer <token>"
+      // Extract token from "Bearer <token>"
       token = req.headers.authorization.split(" ")[1];
 
-      // Verify token using your secret
+      // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Get admin from the database (excluding password for safety)
-      req.admin = await Admin.findById(decoded.id).select("-password");
+      // Fetch admin and check if they still exist in the database
+      const currentAdmin = await Admin.findById(decoded.id).select("-password");
 
-      // Move to the next middleware or controller
+      if (!currentAdmin) {
+        return res.status(401).json({ message: "Not authorized, user no longer exists" });
+      }
+
+      // Attach admin to the request object
+      req.admin = currentAdmin;
+      
       return next(); 
     } catch (error) {
       console.error("JWT Verification Error:", error.message);
@@ -24,7 +30,7 @@ const protect = async (req, res, next) => {
     }
   }
 
-  // 2. If no token was found at all
+  // 2. If no token was found in the header
   if (!token) {
     return res.status(401).json({ message: "Not authorized, no token provided" });
   }
