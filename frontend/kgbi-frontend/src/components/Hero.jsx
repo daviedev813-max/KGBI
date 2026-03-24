@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom"; 
 
 export function Hero() {
   const [currentImg, setCurrentImg] = useState(0);
@@ -67,14 +68,21 @@ export function Hero() {
             Flexible pathways designed for the modern-day disciple.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-5 pt-4 items-center lg:items-start">
-            <button className="btn btn-primary w-full sm:w-auto btn-lg rounded-2xl px-12 h-[65px] text-lg shadow-2xl shadow-black/20 hover:-translate-y-1 transition-all">
-              Begin Application
-            </button>
-            <button className="btn btn-ghost w-full sm:w-auto btn-lg rounded-2xl px-10 h-[65px] border border-white/20 lg:border-slate-200 bg-white/10 lg:bg-white text-white lg:text-primary hover:bg-white hover:text-primary transition-all">
-              View Curriculum
-            </button>
-          </div>
+         <div className="flex flex-col sm:flex-row gap-5 pt-4 items-center lg:items-start">
+  <Link 
+    to="/admissions" 
+    className="btn btn-primary w-full sm:w-auto btn-lg rounded-2xl px-12 h-[65px] text-lg shadow-2xl shadow-black/20 hover:-translate-y-1 transition-all flex items-center justify-center"
+  >
+    Begin Application
+  </Link>
+  
+  <Link 
+    to="/programs" 
+    className="btn btn-ghost w-full sm:w-auto btn-lg rounded-2xl px-10 h-[65px] border border-white/20 lg:border-slate-200 bg-white/10 lg:bg-white text-white lg:text-primary hover:bg-white hover:text-primary transition-all flex items-center justify-center"
+  >
+    View Curriculum
+  </Link>
+</div>
         </div>
 
         {/* --- Right Visual (Bento Box - Hidden on small mobile) --- */}
