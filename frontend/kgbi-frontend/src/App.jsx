@@ -28,21 +28,34 @@ const ScrollToTop = () => {
   return null;
 };
 
+// 🔥 NEW: Layout Wrapper to handle conditional Navbar/Footer
+const LayoutWrapper = ({ children }) => {
+  const location = useLocation();
+  
+  // Check if the current path is an admin-related page
+  const isAdminPage = location.pathname.startsWith("/dashboard") || location.pathname === "/admin";
+
+  return (
+    <>
+      {/* Only show Navbar if NOT an admin page */}
+      {!isAdminPage && <Navbar />}
+
+      <main className={isAdminPage ? "min-h-screen" : "min-h-screen pt-28 md:pt-36 lg:pt-38"}>
+        {children}
+      </main>
+
+      {/* Only show Footer if NOT an admin page */}
+      {!isAdminPage && <Footer />}
+    </>
+  );
+};
+
 function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
       
-      {/* The Navbar is fixed, so it doesn't take up space in the document flow */}
-      <Navbar />
-
-      {/* 
-        🚀 THE FIX: 
-        We add a 'min-h-screen' to keep the footer at the bottom 
-        and 'pt-32' (mobile) / 'md:pt-44' (desktop) to push content 
-        below the navbar's height.
-      */}
-      <main className="min-h-screen pt-28 md:pt-36 lg:pt-38">
+      <LayoutWrapper>
         <Routes>
           {/* 🌐 PUBLIC ROUTES */}
           <Route path="/" element={<Home />} />
@@ -65,9 +78,7 @@ function App() {
             }
           />
         </Routes>
-      </main>
-
-      <Footer />
+      </LayoutWrapper>
     </BrowserRouter>
   );
 }
