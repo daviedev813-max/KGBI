@@ -1,7 +1,11 @@
 {
   "rewrites": [
     {
-      "source": "/((?!api/|static/|_next/|favicon.ico|logo192.png|logo.jpg|manifest.json).*)",
+      "source": "/api/(.*)",
+      "destination": "https://your-render-backend-url.onrender.com"
+    },
+    {
+      "source": "/((?!api/|assets/|favicon.ico|logo.jpg).*)",
       "destination": "/index.html"
     }
   ]

@@ -4,21 +4,21 @@ import tailwindcss from '@tailwindcss/vite'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
-// https://vite.dev
 export default defineConfig(({ mode }) => {
-  // 🛠️ Fix: Use import.meta.url instead of process.cwd() to solve the ESLint error
+  // Use import.meta.url to define __dirname for ESM compatibility
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  
+  // Load env file based on `mode` (development/production)
   const env = loadEnv(mode, __dirname, '');
 
   return {
     plugins: [
       react(), 
-      tailwindcss()
+      tailwindcss() // Tailwind v4 engine (zero-config)
     ],
 
-    // ⚡ Performance Minification
     esbuild: {
-      // Cleans up your code for Vercel; keeps logs for local dev
+      // Automatic cleanup: drops console/debugger in production to keep KGBI logs private
       drop: mode === 'production' ? ['console', 'debugger'] : [],
     },
 
@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => {
       
       rollupOptions: {
         output: {
-          // 🏛️ Advanced Chunking: Keeps your 'Admissions' page lightweight
+          // Splitting large libraries into separate files to optimize Vercel load times
           manualChunks(id) {
             if (id.includes('node_modules')) {
               if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
@@ -45,7 +45,7 @@ export default defineConfig(({ mode }) => {
               return 'vendor-utils';
             }
           },
-          // 🛡️ Cache Busting: Ensures Vercel users don't see old versions
+          // Cache busting: [hash] ensures users always get the latest version after a build
           entryFileNames: 'assets/[name]-[hash].js',
           chunkFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash].[ext]'
@@ -53,16 +53,18 @@ export default defineConfig(({ mode }) => {
       },
     },
 
-    // 🚀 Local Development Bridge
     server: {
       port: 5173,
       strictPort: true,
       proxy: {
-        // Automatically sends '/api' requests to your local Render-style server
+        // Redirects frontend requests from /api to your backend
         '/api': {
-          target: env.VITE_API_URL || 'http://localhost:10000',
+          // If VITE_API_URL includes "/api", we strip it for the proxy target
+          target: env.VITE_API_URL?.replace('/api', '') || 'http://localhost:10000',
           changeOrigin: true,
           secure: false,
+          // Rewrite ensures we don't double up on /api/api if your variable is inconsistent
+          rewrite: (path) => path.replace(/^\/api/, '/api') 
         },
       },
     },
