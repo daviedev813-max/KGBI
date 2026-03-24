@@ -172,10 +172,20 @@ function About() {
            <h2 className="text-3xl md:text-6xl font-black text-white mb-8 relative z-10 tracking-tighter">
              Ready to Begin Your <br /> <span className="text-[#87CEEB]">Theological Training?</span>
            </h2>
-           <div className="flex flex-col sm:flex-row justify-center gap-4 relative z-10">
-              <button className="btn bg-[#87CEEB] hover:bg-white text-[#002855] border-none rounded-full px-12 h-[65px] font-black shadow-xl shadow-[#87CEEB]/20">Apply for 2026</button>
-              <button className="btn btn-ghost text-white border-white/20 hover:bg-white/10 rounded-full px-12 h-[65px] font-black">Contact Admissions</button>
-           </div>
+       <div className="flex flex-col sm:flex-row justify-center gap-4 relative z-10">
+  <a href="/admissions" className="contents">
+    <button className="btn bg-[#87CEEB] hover:bg-white text-[#002855] border-none rounded-full px-12 h-[65px] font-black shadow-xl shadow-[#87CEEB]/20 w-full sm:w-auto">
+      Apply for 2026
+    </button>
+  </a>
+
+  <a href="/contact" className="contents">
+    <button className="btn btn-ghost text-white border-white/20 hover:bg-white/10 rounded-full px-12 h-[65px] font-black w-full sm:w-auto">
+      Contact Admissions
+    </button>
+  </a>
+</div>
+
         </div>
       </section>
     </div>
