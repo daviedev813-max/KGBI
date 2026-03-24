@@ -71,7 +71,7 @@ function Dashboard() {
   const data = tab === "applications" ? applications : messages;
 
   return (
-    <div className="fflex flex-col md:flex-row h-screen h-[100dvh] bg-[#f8fafc] overflow-hidden">
+    <div className="flex flex-col md:flex-row min-h-screen bg-[#f8fafc]">
       
       {/* MOBILE HEADER */}
       <div className="md:hidden flex items-center justify-between p-4 bg-[#0f172a] text-white">
