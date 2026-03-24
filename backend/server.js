@@ -1,5 +1,4 @@
 // 🚨 1. THIS MUST BE THE FIRST LINE. 
-// It forces environment variables to load BEFORE any other imports.
 import 'dotenv/config'; 
 
 import express from "express";
@@ -23,14 +22,31 @@ const __dirname = path.dirname(__filename);
 const app = express();
 connectDB();
 
-// 3. MIDDLEWARE & SECURITY
-// Setting Cross-Origin-Resource-Policy to false allows Cloudinary images to load
-app.use(helmet({ crossOriginResourcePolicy: false })); 
+// 3. MIDDLEWARE & SECURITY 🛡️
+app.use(
+  helmet({
+    // ✅ Allows Cloudinary resources to be loaded by your frontend
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    // ✅ Content Security Policy: Whitelists Cloudinary so the browser doesn't block PDFs
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "res.cloudinary.com"],
+        connectSrc: ["'self'", "res.cloudinary.com"],
+        objectSrc: ["'self'", "res.cloudinary.com"], // Required for PDF viewing
+        frameSrc: ["'self'", "res.cloudinary.com"],  // Required for PDF viewing
+      },
+    },
+  })
+);
+
 app.use(compression()); 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 4. CORS CONFIGURATION
+// 4. CORS CONFIGURATION 🌐
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   "https://kenyagracebibleinstitute.vercel.app",
@@ -51,6 +67,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["Content-Disposition"], // Helpful for file downloads
   }),
 );
 
